@@ -1,134 +1,155 @@
+CREATE TABLE goods_type(
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    goods_type_name VARCHAR(100) NOT NULL,
+    is_delete BOOL DEFAULT FALSE
+);
+CREATE TABLE goods_manufacturer(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    goods_manufacturer_name VARCHAR(100) NOT NULL,
+    goods_manufacturer_location VARCHAR(100) NOT NULL,
+    is_delete BOOL DEFAULT FALSE
+);
+
 CREATE TABLE goods(
-    goods_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     goods_name VARCHAR(100) NOT NULL,
-    goods_type VARCHAR(100) NOT NULL,
+    goods_type_id INT NOT NULL,
+    goods_manufacturer_id INT NOT NULL,
     goods_amount INT NOT NULL,
-    goods_manufacturer VARCHAR(100) NOT NULL,
-    goods_price INT NOT NULL
-);
-/*GOOD TABLE INSERT*/
-CREATE TABLE goods_sales_performed(
-    goods_sales_performed_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    performed_name VARCHAR(100) NOT NULL,
-    performed_date DATE,
-    is_delete BOOL DEFAULT FALSE
-);
-CREATE TABLE goods_buyer_performed(
-    goods_buyer_performed_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    performed_name VARCHAR(100) NOT NULL,
-    performed_date DATE,
-    is_delete BOOL DEFAULT FALSE
-);
-CREATE TABLE goods_sales(
-    goods_sales_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    goods_sales_firstName VARCHAR(100) NOT NULL,
-    goods_sales_lastName VARCHAR(100) NOT NULL,
-    goods_sales_performed_id INT NOT NULL,
+    goods_cost_price INT NOT NULL,
+    goods_sales_price INT NOT NULL,
     is_delete BOOL DEFAULT FALSE,
-    CONSTRAINT FOREIGN KEY (goods_sales_performed_id) REFERENCES goods_sales_performed(goods_sales_performed_id)
+    CONSTRAINT FOREIGN KEY (goods_type_id) REFERENCES goods_type(Id)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+    CONSTRAINT FOREIGN KEY (goods_manufacturer_id) REFERENCES goods_manufacturer(Id)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+
+);
+
+CREATE TABLE Gender(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    gender_name VARCHAR(40) NOT NULL,
+    is_delete BOOL DEFAULT FALSE
+);
+
+CREATE TABLE Person(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    patronymic VARCHAR(100) NULL,
+    age INT NOT NULL,
+    gender_id INT NOT NULL,
+    is_delete BOOL DEFAULT FALSE,
+    CONSTRAINT FOREIGN KEY (gender_id) REFERENCES Gender(Id)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION
 );
+
+CREATE TABLE performerd_sales(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    performed_sales_name VARCHAR(100) NOT NULL,
+    performed_sales_date DATETIME NOT NULL,
+    is_delete BOOL DEFAULT FALSE
+);
+
+CREATE TABLE goods_seller(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    person_id INT NOT NULL,
+    is_delete BOOL DEFAULT FALSE,
+    performed_sales_id INT NOT NULL,
+    CONSTRAINT FOREIGN KEY (person_id) REFERENCES Person(Id)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+    CONSTRAINT FOREIGN KEY (performed_sales_id) REFERENCES performerd_sales(Id)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+);
+
+CREATE TABLE performerd_buys(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    performed_buys VARCHAR(100) NOT NULL,
+    performed_buys_date DATETIME NOT NULL,
+    is_delete BOOL DEFAULT FALSE
+);
+
 CREATE TABLE goods_buyer(
-    goods_buyer_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    goods_buyer_firstName VARCHAR(100) NOT NULL,
-    goods_buyer_lastName VARCHAR(100) NOT NULL,
-    goods_buyer_performed_id INT NOT NULL,
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    person_id INT NOT NULL,
+    performed_buys_id INT NOT NULL,
     is_delete BOOL DEFAULT FALSE,
-    CONSTRAINT FOREIGN KEY (goods_buyer_performed_id) REFERENCES goods_buyer_performed(goods_buyer_performed_id)
+    CONSTRAINT FOREIGN KEY (person_id) REFERENCES Person(Id)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+    CONSTRAINT FOREIGN KEY (performed_buys_id) REFERENCES performerd_buys(Id)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION
 );
-CREATE TABLE sales(
-    sales_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    sales_name VARCHAR(125) NOT NULL,
+
+CREATE TABLE goods_sales(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     sales_price INT NOT NULL,
     sales_amount INT NOT NULL,
-    sales_date DATE,
-    goods_sales_id INT NOT NULL,
+    sales_date DATETIME NOT NULL,
+    saled_goods_id INT NOT NULL,
+    goods_seller_id INT NOT NULL,
     goods_buyer_id INT NOT NULL,
     is_delete BOOL DEFAULT FALSE,
-    CONSTRAINT FOREIGN KEY (goods_sales_id) REFERENCES goods_sales(goods_sales_id)
+    CONSTRAINT FOREIGN KEY (saled_goods_id) REFERENCES goods(Id)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION,
-    CONSTRAINT FOREIGN KEY (goods_buyer_id) REFERENCES goods_buyer(goods_buyer_id)
+    CONSTRAINT FOREIGN KEY (goods_seller_id) REFERENCES goods_seller(Id)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+    CONSTRAINT FOREIGN KEY (goods_buyer_id) REFERENCES goods_buyer(Id)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION
 );
-/*GOOD TABLE INSERT*/
 
-CREATE TABLE Company(
-    company_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    company_name VARCHAR(125) NOT NULL,
-    company_location VARCHAR(125) NOT NULL,
-    is_delete_company BOOL DEFAULT FALSE
+CREATE TABLE table_jobs_employees(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    job_title VARCHAR(100) NOT NULL,
+    is_delete BOOL DEFAULT FALSE
 );
 
-/*EMPLOYESS CREATE TABLE*/
-
-CREATE TABLE employees(
-    employees_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    employees_FirstName VARCHAR(100) NOT NULL,
-    employees_LastName VARCHAR(100) NOT NULL,
-    employees_patronymic VARCHAR(100),
-    employees_position VARCHAR(100) NOT NULL,
-    employees_date_of_receipt DATE,
-    employees_gender VARCHAR(30) NOT NULL,
-    employees_salary INT NOT NULL,
-    employees_company_id INT NOT NULL,
+CREATE TABLE employee(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    person_id INT NOT NULL,
+    employee_job_id INT NOT NULL,
+    employment_date DATETIME NOT NULL,
+    salary INT NOT NULL,
     is_delete BOOL DEFAULT FALSE,
-    FOREIGN KEY(employees_company_id) REFERENCES Company(company_id)
-            ON UPDATE NO ACTION
-            ON DELETE NO ACTION
-);
-/*EMPLOYESS CREATE TABLE*/
-
-CREATE TABLE client_phones(
-    phones_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    phone_number VARCHAR(100) NOT NULL,
-    is_delete_client_phones BOOL DEFAULT FALSE
-);
-CREATE TABLE history_orders(
-    history_orders_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    history_order VARCHAR(100) NOT NULL,
-    order_date DATE,
-    is_delete_history_orders BOOL DEFAULT FALSE
-);
-CREATE TABLE client(
-    client_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    client_FirstName VARCHAR(100) NOT NULL,
-    client_LastName VARCHAR(100) NOT NULL,
-    client_patronymic VARCHAR(100),
-    client_email VARCHAR(100) NOT NULL,
-    client_phones_id INT NOT NULL,
-    client_history_orders_id INT NOT NULL,
-    client_discounts INT NOT NULL,
-    is_subscribe BOOL DEFAULT FALSE,
-    is_delete_client BOOL DEFAULT FALSE,
-    CONSTRAINT FOREIGN KEY (client_phones_id) REFERENCES client_phones(phones_id)
+    CONSTRAINT FOREIGN KEY (person_id) REFERENCES Person(Id)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION,
-    CONSTRAINT FOREIGN KEY (client_history_orders_id) REFERENCES history_orders(history_orders_id)
+    CONSTRAINT FOREIGN KEY (employee_job_id) REFERENCES table_jobs_employees(Id)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION
 );
 
-CREATE VIEW vw_client
-AS SELECT *
-FROM client
-INNER JOIN history_orders h_orders on client.client_id = h_orders.history_orders_id
-INNER JOIN client_phones client_p on client.client_phones_id = client_p.phones_id
-WHERE client.is_delete_client = FALSE AND h_orders.is_delete_history_orders = FALSE AND client_p.is_delete_client_phones = false;
 
-SELECT phones_id AS id,phone_number AS number
-FROM client_phones ORDER BY phone_number;
+CREATE TABLE client_history(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    performed_name VARCHAR(100) NOT NULL,
+    is_delete BOOL DEFAULT FALSE
+);
+
+CREATE TABLE Client(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    person_id INT NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    client_contact VARCHAR(100) NOT NULL,
+    discount INT NULL,
+    is_subscribe BOOL DEFAULT FALSE,
+    is_delete BOOL DEFAULT FALSE,
+    client_history_id INT NOT NULL,
+    CONSTRAINT FOREIGN KEY (person_id) REFERENCES Person(Id)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+    CONSTRAINT FOREIGN KEY (client_history_id) REFERENCES client_history(Id)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+);
 
 
-SELECT * FROM vw_client;
-/*INSERTION FAKE DATA TO client*/
-INSERT INTO client_phones(phone_number)VALUE('54645');
-INSERT INTO history_orders(history_order,order_date) VALUE ('5464545',NOW());
-INSERT INTO client(client_FirstName, client_LastName, client_patronymic, client_email,client_discounts,client_phones_id,client_history_orders_id)
-VALUES('TEST3','TESTGUY3','SOMETESTGUY3','SOMETESTGUY@GMAIL.COM3',5445,1,1);
-
-DELETE FROM client_phones WHERE phones_id = 1;
