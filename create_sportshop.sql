@@ -127,14 +127,11 @@ CREATE TABLE employee(
             ON DELETE NO ACTION
             ON UPDATE NO ACTION
 );
-
-
 CREATE TABLE client_history(
     Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     performed_name VARCHAR(100) NOT NULL,
     is_delete BOOL DEFAULT FALSE
 );
-
 CREATE TABLE Client(
     Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     person_id INT NOT NULL,
@@ -152,4 +149,22 @@ CREATE TABLE Client(
             ON UPDATE NO ACTION
 );
 
+CREATE TABLE trigger_type(
+    Id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    type_name TEXT NOT NULL
+);
 
+CREATE TABLE History(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    log_type_id INT NOT NULL,
+    goods_manufacturer VARCHAR(100) NOT NULL,
+    buyer_firstname VARCHAR(100) NOT NULL,
+    saler_firstname VARCHAR(100) NOT NULL,
+    sales_price VARCHAR(100) NOT NULL,
+    good_name VARCHAR(100) NOT NULL,
+    sales_date DATETIME,
+    is_delete BOOL DEFAULT FALSE,
+    CONSTRAINT FOREIGN KEY (log_type_id) REFERENCES trigger_type(Id)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+);
