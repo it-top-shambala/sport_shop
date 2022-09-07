@@ -4,9 +4,9 @@ goods_sales FOR EACH ROW
         VALUES (
                 (SELECT trigger_type.Id FROM trigger_type WHERE trigger_type.type_name = 'insert'),
                 (SELECT goods_manufacturer_name FROM goods_manufacturer WHERE Id = (SELECT Id FROM goods WHERE Id = NEW.Id)),
-                (SELECT first_name FROM Person WHERE Person.Id = (SELECT Id FROM goods WHERE Id = NEW.Id) ),
-                (SELECT first_name FROM Person WHERE Person.Id = (SELECT Id FROM goods_sales WHERE Id = NEW.Id)),
+                (SELECT first_name FROM Person WHERE Person.Id = (SELECT Id FROM goods_buyer WHERE Id = NEW.goods_buyer_id)),
+                (SELECT first_name FROM Person WHERE Person.Id = (SELECT Id FROM goods_sales WHERE Id = NEW.goods_seller_id)),
                 New.sales_price,
-                (SELECT goods_name FROM goods WHERE goods.Id),
+                (SELECT goods_name FROM goods WHERE goods.Id = NEW.saled_goods_id),
                 NEW.sales_date
         );
