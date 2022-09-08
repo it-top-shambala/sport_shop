@@ -168,3 +168,21 @@ CREATE TABLE History(
             ON DELETE NO ACTION
             ON UPDATE NO ACTION
 );
+
+
+CREATE TABLE Archive(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    archive_goods_name VARCHAR(100) NOT NULL,
+    archive_goods_type_id INT NOT NULL,
+    archive_goods_manufacturer_id INT NOT NULL,
+    archive_goods_amount INT NOT NULL,
+    archive_goods_cost_price INT NOT NULL,
+    archive_goods_sales_price INT NOT NULL,
+    is_delete BOOL DEFAULT FALSE,
+    CONSTRAINT FOREIGN KEY (archive_goods_type_id) REFERENCES goods_type(Id)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION,
+    CONSTRAINT FOREIGN KEY (archive_goods_manufacturer_id) REFERENCES goods_manufacturer(Id)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+);
