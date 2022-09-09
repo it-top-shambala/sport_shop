@@ -3,8 +3,7 @@ CREATE TABLE human(#таблица людей
     first_name VARCHAR(255) NOT NULL,#имя
     last_name VARCHAR(255) NOT NULL,#фамилия
     patronymic VARCHAR(255),#отчество
-    gender VARCHAR(8) NOT NULL,#пол
-    is_deleted BOOL #удален ли
+    gender VARCHAR(8) NOT NULL#пол
 );
 
 CREATE TABLE job_title(#таблица должностей
@@ -18,6 +17,7 @@ CREATE TABLE employees(#сотрудники
   id_human INT NOT NULL,
   id_title INT NOT NULL,
   date_employment DATE NOT NULL, #дата трудоустройства
+  is_deleted BOOL, #удален ли
   FOREIGN KEY (id_human) REFERENCES human(id_human)
                       ON UPDATE NO ACTION
                       ON DELETE NO ACTION,
@@ -33,6 +33,7 @@ CREATE TABLE clients(#клиенты
   phone VARCHAR(15) NOT NULL,
   discount INT,
   newsletter_sub BOOL,#подписка на рассылку
+  is_deleted BOOL, #удален ли
   FOREIGN KEY (id_human) REFERENCES human(id_human)
                       ON UPDATE NO ACTION
                       ON DELETE NO ACTION
@@ -43,18 +44,28 @@ CREATE TABLE manufacturer(#произзвлдитель
   name_manufacturer TEXT NOT NULL
 );
 
+CREATE TABLE type_thing(#тип товара
+    id_type_thing INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    type VARCHAR(100) NOT NULL
+);
+
 CREATE TABLE things(#товары
   id_thing INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   name_thing VARCHAR(100) NOT NULL,
-  type_thing VARCHAR(100) NOT NULL,
-  amount_thing INT NOT NULL,
+  id_type_thing INT NOT NULL,
+  cost_price DOUBLE NOT NULL,
+  selling_price DOUBLE NOT NULL,
   id_manufacturer INTEGER NOT NULL,
+  is_deleted BOOL, #удален ли
   FOREIGN KEY (id_manufacturer) REFERENCES manufacturer(id_manufacturer)
+                      ON UPDATE NO ACTION
+                      ON DELETE NO ACTION,
+  FOREIGN KEY (id_type_thing) REFERENCES type_thing(id_type_thing)
                       ON UPDATE NO ACTION
                       ON DELETE NO ACTION
 );
 
-CREATE TABLE cost_price(#себестоимость
+/*CREATE TABLE cost_price(#себестоимость
   id_cost_price INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
   id_thing INT NOT NULL,
   cost_price_thing DOUBLE NOT NULL,
@@ -70,7 +81,7 @@ CREATE TABLE selling_price(#цена продажи
   FOREIGN KEY (id_cost_price) REFERENCES cost_price(id_cost_price)
                       ON UPDATE NO ACTION
                       ON DELETE NO ACTION
-);
+);*/
 
 CREATE TABLE amount_thing(#количество товара
     id_amount INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -86,6 +97,7 @@ CREATE TABLE history_sales(#история продаж
   id_thing INT NOT NULL,
   data_sale DATE NOT NULL,#дата продажи
   amount_sale INT NOT NULL,#количество куплено
+  final_price DOUBLE NOT NULL,
   id_client INT,
   id_employee INT NOT NULL,
   FOREIGN KEY (id_thing) REFERENCES things(id_thing)
