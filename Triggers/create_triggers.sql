@@ -53,6 +53,16 @@ Person FOR EACH ROW
 
     DROP TRIGGER check_user_exist_person;
 
+DELIMITER |
+CREATE TRIGGER check_user_exist_client AFTER INSERT ON
+Client FOR EACH ROW
+    BEGIN
+        DECLARE is_exist INT(11);
+        SELECT EXISTS(SELECT person_id, email FROM sport_shop.Client WHERE person_id = NEW.person_id OR email = NEW.email)) INTO is_exist;
+        #check whetever user exist if user exist then EXISTS return 1 otherwise return 0
+        IF is_exist = 1 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'PERSON OR EMAIL ALREADY EXIST';
+        END IF;
+    END |
 
-
-
+    DROP TRIGGER check_user_exist_client;
