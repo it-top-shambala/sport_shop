@@ -36,3 +36,33 @@ goods_sales FOR EACH ROW
                 );
         END IF;
     END |
+
+
+
+DELIMITER |
+CREATE TRIGGER check_user_exist AFTER INSERT ON
+Client FOR EACH ROW
+    BEGIN
+        DECLARE is_exist INT(11);
+        DECLARE last_name_ VARCHAR(100);
+        DECLARE first_name_ VARCHAR(100);
+        DECLARE email_ VARCHAR(100);
+        SELECT first_name INTO first_name_ FROM sport_shop.person Where Id = (SELECT person_id FROM sport_shop.client WHERE person_id = NEW.person_id);
+        SELECT last_name INTO last_name_ FROM sport_shop.person Where Id = (SELECT person_id FROM sport_shop.client WHERE person_id = NEW.person_id);
+        SELECT EXISTS((SELECT * FROM sport_shop.person WHERE
+                                                           person.first_name = first_name_ AND
+                                                           person.last_name = last_name_
+                                                       )) INTO is_exist;
+        #check whetever user exist if user exist then EXISTS return 1 otherwise return 0
+        SELECT EXISTS((SELECT * FROM client WHERE Id = NEW.Id = email = NEW.email)) INTO email_;
+        IF is_exist = 1 OR email_ = 1 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'USER ALREADY EXIST';
+        END IF;
+    END |
+
+
+    DROP TRIGGER check_user_exist;
+
+
+
+
