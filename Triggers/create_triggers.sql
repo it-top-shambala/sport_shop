@@ -50,6 +50,7 @@ Person FOR EACH ROW
     DROP TRIGGER check_user_exist_person;
 
 DELIMITER |
+<<<<<<< HEAD
 CREATE TRIGGER check_user_exist_client BEFORE INSERT ON
 Client FOR EACH ROW
     BEGIN
@@ -112,4 +113,31 @@ DROP TRIGGER check_client_buys_sum;
 
 
 
+=======
+CREATE TRIGGER check_user_exist_person AFTER INSERT ON
+Person FOR EACH ROW
+    BEGIN
+        DECLARE is_exist INT(11);
+        SELECT EXISTS(SELECT first_name,last_name FROM sport_shop.person WHERE first_name = NEW.first_name AND last_name = NEW.last_name)) INTO is_exist;
+        #check whetever user exist if user exist then EXISTS return 1 otherwise return 0
+        IF is_exist = 1 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'USER FIRST_NAME AND LAST_NAME ALREADY EXIST';
+        END IF;
+    END |
 
+    DROP TRIGGER check_user_exist_person;
+
+DELIMITER |
+CREATE TRIGGER check_user_exist_client AFTER INSERT ON
+Client FOR EACH ROW
+    BEGIN
+        DECLARE is_exist INT(11);
+        SELECT EXISTS(SELECT person_id, email FROM sport_shop.Client WHERE person_id = NEW.person_id OR email = NEW.email)) INTO is_exist;
+        #check whetever user exist if user exist then EXISTS return 1 otherwise return 0
+        IF is_exist = 1 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'PERSON OR EMAIL ALREADY EXIST';
+        END IF;
+    END |
+>>>>>>> ff2b1044760a4cecd29ed0ceeccbe76a70f69ff2
+
+    DROP TRIGGER check_user_exist_client;
