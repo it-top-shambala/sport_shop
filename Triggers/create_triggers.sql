@@ -11,7 +11,6 @@ goods_sales FOR EACH ROW
                 NEW.sales_date
         );
 
-
 DROP TRIGGER sales_log_history_insert;
 
 DELIMITER |
@@ -37,31 +36,79 @@ goods_sales FOR EACH ROW
         END IF;
     END |
 
-
+DELIMITER |
+CREATE TRIGGER check_user_exist_person BEFORE INSERT ON
+Person FOR EACH ROW
+    BEGIN
+        DECLARE is_exist INT(11);
+        SELECT EXISTS((SELECT first_name,last_name FROM sport_shop.person WHERE first_name = NEW.first_name OR last_name = NEW.last_name)) INTO is_exist;
+        #check whetever user exist if user exist then EXISTS return 1 otherwise return 0
+        IF is_exist = 1 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'USER FIRST_NAME AND LAST_NAME ALREADY EXIST';
+        END IF;
+    END |
+    DROP TRIGGER check_user_exist_person;
 
 DELIMITER |
-CREATE TRIGGER check_user_exist AFTER INSERT ON
+CREATE TRIGGER check_user_exist_client BEFORE INSERT ON
 Client FOR EACH ROW
     BEGIN
         DECLARE is_exist INT(11);
-        DECLARE last_name_ VARCHAR(100);
-        DECLARE first_name_ VARCHAR(100);
-        DECLARE email_ VARCHAR(100);
-        SELECT first_name INTO first_name_ FROM sport_shop.person Where Id = (SELECT person_id FROM sport_shop.client WHERE person_id = NEW.person_id);
-        SELECT last_name INTO last_name_ FROM sport_shop.person Where Id = (SELECT person_id FROM sport_shop.client WHERE person_id = NEW.person_id);
-        SELECT EXISTS((SELECT * FROM sport_shop.person WHERE
-                                                           person.first_name = first_name_ AND
-                                                           person.last_name = last_name_
-                                                       )) INTO is_exist;
+        SELECT EXISTS(SELECT person_id, email FROM sport_shop.Client WHERE person_id = NEW.person_id OR email = NEW.email) INTO is_exist;
         #check whetever user exist if user exist then EXISTS return 1 otherwise return 0
-        SELECT EXISTS((SELECT * FROM client WHERE Id = NEW.Id = email = NEW.email)) INTO email_;
-        IF is_exist = 1 OR email_ = 1 THEN
-            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'USER ALREADY EXIST';
+        IF is_exist = 1 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'PERSON OR EMAIL ALREADY EXIST';
         END IF;
     END |
 
+    DROP TRIGGER check_user_exist_client;
 
-    DROP TRIGGER check_user_exist;
+#TODO FIX CLIENT INSERT
+DELIMITER |
+CREATE TRIGGER save_deleted_users AFTER UPDATE ON
+Client FOR EACH ROW
+    BEGIN
+        IF NEW.is_delete =  TRUE THEN
+            INSERT INTO deleted_users(client_id) VALUES(NEW.Id);
+        END IF;
+    END |
+
+DROP TRIGGER save_deleted_users;
+
+DELIMITER |
+CREATE TRIGGER check_employee_date BEFORE UPDATE ON
+employee FOR EACH ROW
+    BEGIN
+        SET @isGreater = NEW.employment_date <= STR_TO_DATE('2015-01-01','%Y-%m-%d');
+        IF  @isGreater = TRUE AND NEW.is_delete = TRUE THEN
+            SIGNAL SQLSTATE '12343' SET MESSAGE_TEXT = 'You cant delete this employee';
+        END IF;
+    END |
+
+DROP TRIGGER check_employee_date;
+
+
+#TODO FIX SOME PROBLEMS
+DELIMITER |
+CREATE TRIGGER check_client_buys_sum AFTER INSERT ON
+goods_sales FOR EACH ROW
+    BEGIN
+        DECLARE sum INT;
+        DECLARE sales_id INT;
+        DECLARE old_discount INT;
+        SELECT Id INTO sales_id FROM performerd_buys WHERE Id = (SELECT goods_buyer_id FROM goods_sales WHERE goods_buyer_id = NEW.goods_buyer_id);
+        SELECT SUM(performed_buys_price) INTO sum FROM performerd_buys WHERE Id = sales_id;
+        SELECT discounts INTO old_discount FROM goods_sales WHERE Id = NEW.Id;
+        IF sum >= 50000 THEN
+            UPDATE goods_sales SET discounts = (old_discount + 15) WHERE Id = NEW.Id;
+        END IF;
+    END |
+DROP TRIGGER check_client_buys_sum;
+
+
+
+
+
 
 
 

@@ -70,6 +70,7 @@ CREATE TABLE goods_seller(
 CREATE TABLE performerd_buys(
     Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     performed_buys VARCHAR(100) NOT NULL,
+    performed_buys_price INT NOT NULL,
     performed_buys_date DATETIME NOT NULL,
     is_delete BOOL DEFAULT FALSE
 );
@@ -95,6 +96,7 @@ CREATE TABLE goods_sales(
     saled_goods_id INT NOT NULL,
     goods_seller_id INT NOT NULL,
     goods_buyer_id INT NOT NULL,
+    discounts INT NOT NULL,
     is_delete BOOL DEFAULT FALSE,
     CONSTRAINT FOREIGN KEY (saled_goods_id) REFERENCES goods(Id)
             ON DELETE NO ACTION
@@ -183,6 +185,16 @@ CREATE TABLE Archive(
             ON DELETE NO ACTION
             ON UPDATE NO ACTION,
     CONSTRAINT FOREIGN KEY (archive_goods_manufacturer_id) REFERENCES goods_manufacturer(Id)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+);
+
+
+CREATE TABLE deleted_users(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    client_id INT NOT NULL,
+    is_delete BOOL DEFAULT FALSE,
+     CONSTRAINT FOREIGN KEY (client_id) REFERENCES Client(Id)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION
 );
