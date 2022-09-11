@@ -50,7 +50,7 @@ Person FOR EACH ROW
     DROP TRIGGER check_user_exist_person;
 
 DELIMITER |
-<<<<<<< HEAD
+
 CREATE TRIGGER check_user_exist_client BEFORE INSERT ON
 Client FOR EACH ROW
     BEGIN
@@ -106,14 +106,6 @@ goods_sales FOR EACH ROW
     END |
 DROP TRIGGER check_client_buys_sum;
 
-
-
-
-
-
-
-
-=======
 CREATE TRIGGER check_user_exist_person AFTER INSERT ON
 Person FOR EACH ROW
     BEGIN
@@ -138,6 +130,5 @@ Client FOR EACH ROW
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'PERSON OR EMAIL ALREADY EXIST';
         END IF;
     END |
->>>>>>> ff2b1044760a4cecd29ed0ceeccbe76a70f69ff2
 
     DROP TRIGGER check_user_exist_client;
