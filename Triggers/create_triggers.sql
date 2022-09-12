@@ -79,10 +79,6 @@ Person FOR EACH ROW
 
 DELIMITER |
 
-<<<<<<< HEAD
-
-=======
->>>>>>> beca4d86af60074f2990470ec1175719cef6f74f
 CREATE TRIGGER check_user_exist_client BEFORE INSERT ON
 Client FOR EACH ROW
     BEGIN
@@ -132,15 +128,9 @@ goods_sales FOR EACH ROW
     END |
 DROP TRIGGER check_client_buys_sum;
 
-<<<<<<< HEAD
-
 DELIMITER |
 CREATE TRIGGER check_banned_companys BEFORE INSERT ON
 goods_manufacturer FOR EACH ROW
-=======
-CREATE TRIGGER check_user_exist_person AFTER INSERT ON
-Person FOR EACH ROW
->>>>>>> beca4d86af60074f2990470ec1175719cef6f74f
     BEGIN
         DECLARE is_banned INT;
         SELECT EXISTS(SELECT company_name FROM banned_companys WHERE company_name = NEW.goods_manufacturer_name) INTO is_banned;
@@ -163,13 +153,6 @@ goods FOR EACH ROW
             SET NEW.goods_amount = (NEW.goods_amount + (SELECT SUM(goods_amount) FROM goods WHERE goods_name = NEW.goods_name AND goods_type_id = NEW.goods_type_id AND goods_manufacturer_id = NEW.goods_manufacturer_id));
         END IF;
     END |
-<<<<<<< HEAD
 DROP TRIGGER check_goods_exist_then_update;
 
 #TODO 10-11
-
-
-
-=======
->>>>>>> beca4d86af60074f2990470ec1175719cef6f74f
-
