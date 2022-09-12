@@ -189,12 +189,27 @@ CREATE TABLE Archive(
             ON UPDATE NO ACTION
 );
 
-
 CREATE TABLE deleted_users(
     Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     client_id INT NOT NULL,
     is_delete BOOL DEFAULT FALSE,
      CONSTRAINT FOREIGN KEY (client_id) REFERENCES Client(Id)
+            ON DELETE NO ACTION
+            ON UPDATE NO ACTION
+);
+
+CREATE TABLE banned_companys(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    company_name VARCHAR(100) NOT NULL,
+    is_delete BOOL DEFAULT FALSE
+);
+
+
+CREATE TABLE last_goods(
+    Id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    goods_id INT NOT NULL,
+    date DATETIME NOT NULL,
+    CONSTRAINT FOREIGN KEY (goods_id) REFERENCES goods(Id)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION
 );

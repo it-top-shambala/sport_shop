@@ -1,4 +1,4 @@
-INSERT INTO Client (person_id, email, client_contact, discount, is_subscribe, is_delete,
+INSERT INTO Client (person_id, email, client_contact, discount,
                                         client_history_id)
-VALUES (2, 'email9@gmail.com',
-        '54675757566', 234, DEFAULT, DEFAULT, 1);
+VALUES (2, 'e',
+        '54675757566', 234,  1);
