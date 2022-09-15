@@ -17,7 +17,7 @@ CREATE TABLE employees(#сотрудники
   id_human INT NOT NULL,
   id_title INT NOT NULL,
   date_employment DATE NOT NULL, #дата трудоустройства
-  is_deleted BOOL, #удален ли
+  is_deleted BOOL NOT NULL DEFAULT FALSE, #удален ли
   FOREIGN KEY (id_human) REFERENCES human(id_human)
                       ON UPDATE NO ACTION
                       ON DELETE NO ACTION,
@@ -33,7 +33,7 @@ CREATE TABLE clients(#клиенты
   phone VARCHAR(15) NOT NULL,
   discount INT,
   newsletter_sub BOOL,#подписка на рассылку
-  is_deleted BOOL, #удален ли
+  is_deleted BOOL NOT NULL DEFAULT FALSE, #удален ли
   FOREIGN KEY (id_human) REFERENCES human(id_human)
                       ON UPDATE NO ACTION
                       ON DELETE NO ACTION
@@ -55,8 +55,9 @@ CREATE TABLE things(#товары
   id_type_thing INT NOT NULL,
   cost_price DOUBLE NOT NULL,
   selling_price DOUBLE NOT NULL,
+  amount_thing INT NOT NULL,
   id_manufacturer INTEGER NOT NULL,
-  is_deleted BOOL, #удален ли
+  is_deleted BOOL NOT NULL DEFAULT FALSE, #удален ли
   FOREIGN KEY (id_manufacturer) REFERENCES manufacturer(id_manufacturer)
                       ON UPDATE NO ACTION
                       ON DELETE NO ACTION,
@@ -65,32 +66,14 @@ CREATE TABLE things(#товары
                       ON DELETE NO ACTION
 );
 
-/*CREATE TABLE cost_price(#себестоимость
-  id_cost_price INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  id_thing INT NOT NULL,
-  cost_price_thing DOUBLE NOT NULL,
-  FOREIGN KEY (id_thing) REFERENCES things(id_thing)
-                      ON UPDATE NO ACTION
-                      ON DELETE NO ACTION
-);
-
-CREATE TABLE selling_price(#цена продажи
-  id_selling_price INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  id_cost_price INTEGER NOT NULL,
-  selling_price_thing DOUBLE NOT NULL,
-  FOREIGN KEY (id_cost_price) REFERENCES cost_price(id_cost_price)
-                      ON UPDATE NO ACTION
-                      ON DELETE NO ACTION
-);*/
-
-CREATE TABLE amount_thing(#количество товара
+/*CREATE TABLE amount_thing(#количество товара
     id_amount INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
     id_thing INT NOT NULL,
     amount INT NOT NULL,
     FOREIGN KEY (id_thing) REFERENCES things(id_thing)
                       ON UPDATE NO ACTION
                       ON DELETE NO ACTION
-);
+);*/
 
 CREATE TABLE history_sales(#история продаж
   id_sale INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -114,13 +97,13 @@ CREATE TABLE history_sales(#история продаж
 CREATE TABLE last_thing(#последняя единица
     id_last_thing INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     id_thing INT NOT NULL,
-    id_amount INT NOT NULL,
+   # amount_thing INT NOT NULL,
     FOREIGN KEY (id_thing) REFERENCES things(id_thing)
                       ON UPDATE NO ACTION
-                      ON DELETE NO ACTION,
-    FOREIGN KEY (id_amount) REFERENCES amount_thing(id_amount)
-                      ON UPDATE NO ACTION
                       ON DELETE NO ACTION
+   /* FOREIGN KEY (amount_thing) REFERENCES things(amount_thing)
+                      ON UPDATE NO ACTION
+                      ON DELETE NO ACTION*/
 );
 
 CREATE TABLE archive_employees(#архив сотрудников
