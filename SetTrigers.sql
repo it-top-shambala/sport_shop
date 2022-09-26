@@ -2,8 +2,8 @@
 CREATE TRIGGER check_things
     BEFORE INSERT ON things
     FOR EACH ROW
-    SET @index_check = Check_things();
-    IF(@index_check) THEN Change_amount_thing(@index_check);
+    SET @index_check = CALL Check_things();
+    IF(@index_check) THEN CALL Change_amount_thing(@index_check);
     ELSE
          INSERT INTO things( name_thing, id_type_thing, cost_price, selling_price,
                             amount_thing, id_manufacturer)
@@ -18,4 +18,59 @@ CREATE TRIGGER employee_delete
     IF (is_deleted = true) THEN
         INSERT INTO archive_employees(id_employee)
             VALUE (id_employee);
+    END IF;
+
+  #проверка, зарегистрирован ли покупатель
+CREATE TRIGGER set_clients
+    BEFORE INSERT ON clients
+    FOR EACH ROW
+    IF(NEW.id_human = id_human AND NEW.email = email) THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'The client is already registered';
+    ELSE
+        INSERT INTO clients (id_human, email, phone, discount, newsletter_sub, is_deleted)
+            VALUE (NEW.id_human, NEW.email, NEW.phone,
+                   NEW.discount, NEW.newsletter_sub, NEW.is_deleted);
+    END IF;
+
+  #запрет на удаление существующих клиентов
+CREATE TRIGGER ban_deletion_client
+    BEFORE DELETE ON clients
+    FOR EACH ROW
+      SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Удаление запрещено';
+
+  #запрет на удаление сотрудников, принятых на работу до 2015г.
+CREATE TRIGGER ban_deletion_employee
+    BEFORE DELETE ON employees
+    FOR EACH ROW
+      IF ((SELECT date_employment FROM employees WHERE id_employee = NEW.id_employee) < '01.01.2015')
+      THEN
+         SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Удаление запрещено';
+      END IF;
+
+  #запрет на добавление товара фирмы "Спорт, солнце и штанга"
+CREATE TRIGGER ban_insert_manufacture
+    BEFORE INSERT ON things
+    FOR EACH ROW
+    IF (NEW.) THEN
+
+    ELSE
+    END IF;
+
+  #При продаже товара заносит информацию о продаже в таблицу «История продаж»
+CREATE TRIGGER register_new_sale
+    AFTER UPDATE ON things
+    FOR EACH ROW
+    IF () THEN
+
+    ELSE
+    END IF;
+
+  #При продаже товара заносит информацию о продаже в таблицу «История продаж»
+CREATE TRIGGER register_new_sale
+    AFTER UPDATE ON things
+    FOR EACH ROW
+    IF () THEN
+
+    ELSE
     END IF;

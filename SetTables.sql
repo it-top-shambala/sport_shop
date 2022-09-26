@@ -66,19 +66,10 @@ CREATE TABLE things(#товары
                       ON DELETE NO ACTION
 );
 
-/*CREATE TABLE amount_thing(#количество товара
-    id_amount INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    id_thing INT NOT NULL,
-    amount INT NOT NULL,
-    FOREIGN KEY (id_thing) REFERENCES things(id_thing)
-                      ON UPDATE NO ACTION
-                      ON DELETE NO ACTION
-);*/
-
 CREATE TABLE history_sales(#история продаж
   id_sale INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
   id_thing INT NOT NULL,
-  data_sale DATE NOT NULL,#дата продажи
+  data_sale DATETIME NOT NULL DEFAULT NOW(), #дата и время продажи продажи
   amount_sale INT NOT NULL,#количество куплено
   final_price DOUBLE NOT NULL,
   id_client INT,
