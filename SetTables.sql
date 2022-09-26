@@ -112,3 +112,28 @@ CREATE TABLE archive_things(#архив проданых товаров
                       ON UPDATE NO ACTION
                       ON DELETE NO ACTION
 );
+
+INSERT INTO job_title(title_name, salary)
+VALUES ('Продавец', 10000),
+       ('Менеджер', 20000),
+       ('Управляющий', 30000);
+
+INSERT INTO human(gender, first_name, last_name, patronymic)
+VALUES ('мужской', 'John', 'Johnson', NULL),
+       ('женский', 'Iren','Adler', NULL),
+       ('мужской', 'Абрахам','Жванецки', NULL),
+       ('мужской','Виктор', 'Викторов','Викторович'),
+       ('женский', 'Анна','Петрова','Ивановна'),
+       ('мужской', 'Иван','Иванов','Иванович'),
+       ('женский', 'Мария','Игнатьева','Павловна'),
+       ('женский', 'Ольга','Мухамор','Александровна'),
+       ('женский', 'Vengera','Puaro','Alloiza'),
+       ('мужской', 'Петр','Горбунков','Петрович'),
+       ('женский', 'Матильда','Вишневская','Жоановна');
+
+INSERT INTO clients(id_human, email, phone, discount, newsletter_sub)
+VALUES (1,'flip-flap@mail.ru','45-25-42', 0, 0),
+       (6, NULL,'35-74-17', 15, 0),
+       (7,'amnezia@dostala.org','857-27-27', 0, 1),
+       (10,'inogorodnay@ya.com','89123432497', 5, 0),
+       (11,'matilda@rulit.net','89505603475', 0, 1);

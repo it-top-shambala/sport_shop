@@ -34,16 +34,3 @@ INSERT INTO history_sales(id_thing, amount_sale, final_price, id_client, id_empl
         #SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Товар добавлен в таблицу "Архив товаров"';
     END IF;
 END|
-
-
-DELIMITER |
-CREATE PROCEDURE check_things_() #поиск и проверка наличия товара в таблицах
-BEGIN
-
-END|
-
-DELIMITER |
-CREATE PROCEDURE check_things_() #поиск и проверка наличия товара в таблицах
-BEGIN
-
-END|

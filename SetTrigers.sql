@@ -48,29 +48,19 @@ CREATE TRIGGER ban_deletion_employee
          SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Удаление запрещено';
       END IF;
 
-  #запрет на добавление товара фирмы "Спорт, солнце и штанга"
+  #запрет на добавление фирмы "Спорт, солнце и штанга"
 CREATE TRIGGER ban_insert_manufacture
-    BEFORE INSERT ON things
+    BEFORE INSERT ON manufacturer
     FOR EACH ROW
-    IF (NEW.) THEN
-
-    ELSE
+    IF (NEW.name_manufacturer = 'Спорт, солнце и штанга') THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Добавление производителя запрещено';
     END IF;
 
   #При продаже товара заносит информацию о продаже в таблицу «История продаж»
-CREATE TRIGGER register_new_sale
-    AFTER UPDATE ON things
+CREATE TRIGGER check_amount_employees
+    BEFORE INSERT ON employees
     FOR EACH ROW
-    IF () THEN
-
-    ELSE
+    IF ((SELECT COUNT(1) FROM employees WHERE id_employee = 1) >= 6) THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Добавление продавца запрещено';
     END IF;
 
-  #При продаже товара заносит информацию о продаже в таблицу «История продаж»
-CREATE TRIGGER register_new_sale
-    AFTER UPDATE ON things
-    FOR EACH ROW
-    IF () THEN
-
-    ELSE
-    END IF;
