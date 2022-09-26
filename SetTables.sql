@@ -69,7 +69,7 @@ CREATE TABLE things(#товары
 CREATE TABLE history_sales(#история продаж
   id_sale INTEGER NOT NULL PRIMARY KEY AUTO_INCREMENT,
   id_thing INT NOT NULL,
-  data_sale DATETIME NOT NULL DEFAULT NOW(), #дата и время продажи продажи
+  data_sale DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, #дата и время продажи продажи
   amount_sale INT NOT NULL,#количество куплено
   final_price DOUBLE NOT NULL,
   id_client INT,
@@ -137,3 +137,14 @@ VALUES (1,'flip-flap@mail.ru','45-25-42', 0, 0),
        (7,'amnezia@dostala.org','857-27-27', 0, 1),
        (10,'inogorodnay@ya.com','89123432497', 5, 0),
        (11,'matilda@rulit.net','89505603475', 0, 1);
+
+INSERT INTO employees(id_human, id_title, date_employment)
+VALUES (2, 1, '2014-04-23');
+
+INSERT INTO employees(id_human, id_title, date_employment)
+VALUES(3, 2, '2018-03-01'),
+       (4, 1, '2016-10-15'),
+       (5, 3, '2020-02-26'),
+       (8, 1, '2012-10-31'),
+       (9, 2, '2021-11-21');
+
