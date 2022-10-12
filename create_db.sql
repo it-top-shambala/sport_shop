@@ -70,3 +70,20 @@ create table arhive (
     start_price float not null,
     manufacturer int not null
 );
+
+create table last_unit (
+    id int not null primary key auto_increment,
+    id_product int not null,
+    time_action datetime not null default now(),
+    availability int not null
+)
+
+create table arhive_sellers (
+    id int not null primary key auto_increment,
+    last_name text not null,
+    first_name text not null,
+    post text not null,
+    gender text not null,
+    date_employment datetime not null,
+    date_dismiss datetime not null default now()
+);
