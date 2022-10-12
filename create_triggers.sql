@@ -87,7 +87,11 @@ CREATE TRIGGER trigger_set_discount_if_50000
             END IF;
          END;
         END IF;
+        INSERT INTO table_deals (product_id, client_id, salesman_id, amount, price, date_of_deal)
+               VALUES (NEW.product_id, NEW.client_id, NEW.salesman_id, NEW.amount, NEW.price, NEW.date_of_deal);
 END|
+-- условие для отмены временной скидки после завершения покупки???
+
 
 DELIMITER |
 CREATE TRIGGER trigger_drop_employee_to_archive
