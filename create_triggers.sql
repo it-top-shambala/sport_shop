@@ -58,8 +58,8 @@ CREATE TRIGGER trigger_set_discount_if_50000
         IF @exists THEN
          BEGIN
             DECLARE done INT DEFAULT FALSE;
-            DECLARE temp INT DEFAULT 0;
-            DECLARE sum INT DEFAULT 0;
+            DECLARE temp FLOAT DEFAULT 0.0;
+            DECLARE sum FLOAT DEFAULT 0.0;
             DECLARE price_cursor CURSOR FOR SELECT price FROM table_deals
                                                WHERE NEW.date_of_deal=date(now())AND
                                                      NEW.client_id=client_id;
@@ -74,7 +74,7 @@ CREATE TRIGGER trigger_set_discount_if_50000
             END LOOP;
             CLOSE price_cursor;
 
-            IF sum>50000 THEN
+            IF sum>50000.0 THEN
                 BEGIN
                     DECLARE existed_discount INT DEFAULT 0;
                     SELECT discount INTO existed_discount FROM table_clients WHERE client_id = NEW.client_id;
@@ -91,7 +91,7 @@ END|
 
 DELIMITER |
 CREATE TRIGGER trigger_drop_employee_to_archive
-    BEFORE UPDATE ON table_employee
+    AFTER UPDATE ON table_employee
     FOR EACH ROW
     BEGIN
         IF NEW.is_working=FALSE THEN
@@ -111,13 +111,19 @@ CREATE TRIGGER trigger_if_product_exists
                                                      NEW.cost_price=cost_price);
         IF @exists THEN
          BEGIN
-             DECLARE existed_amount INT DEFAULT 0;
-             DECLARE new_amount INT DEFAULT 0;
-             SELECT amount INTO existed_amount FROM table_products WHERE product_id=NEW.product_id;
-             SELECT existed_amount+NEW.amount INTO new_amount;
+             DECLARE existed_product_id INT;
+             DECLARE old_amount INT;
+             DECLARE new_amount INT;
+             SELECT product_id INTO existed_product_id FROM table_products WHERE
+                                                     NEW.product_name=product_name AND
+                                                     NEW.product_type=product_type AND
+                                                     NEW.manufacturer=manufacturer AND
+                                                     NEW.cost_price=cost_price;
+             SELECT amount INTO old_amount FROM table_products WHERE product_id=existed_product_id;
+             SELECT old_amount+NEW.amount INTO new_amount;
              UPDATE table_products
-                 SET amount = new_amount
-                 WHERE product_id=NEW.product_id;
+             SET amount = new_amount
+             WHERE product_id=existed_product_id;
          END;
         ELSE INSERT INTO table_products (product_name, product_type, manufacturer, amount, cost_price, sell_price)
              VALUES (NEW.product_name, NEW.product_type, NEW.manufacturer, NEW.amount, NEW.cost_price, NEW.sell_price);
