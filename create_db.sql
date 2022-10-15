@@ -1,5 +1,24 @@
 CREATE SCHEMA sport_shop_db;
 
+DROP TABLE table_employee_archive;
+DROP TABLE table_procurements;
+DROP TABLE last_items;
+DROP TABLE table_sold_out_products_archive;
+DROP TABLE table_receipt_items;
+DROP TABLE table_order_items;
+DROP TABLE table_all_sales;
+DROP TABLE table_orders;
+DROP TABLE table_receipts;
+DROP TABLE table_products;
+DROP TABLE table_product_types;
+DROP TABLE table_companies;
+DROP TABLE table_clients;
+DROP TABLE table_employee;
+DROP TABLE table_positions;
+DROP TABLE table_persons;
+DROP TABLE table_genders;
+
+
 -- tables for employee and clients
 CREATE TABLE table_genders(
     gender_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -120,6 +139,8 @@ CREATE TABLE table_receipts(
     total_items INT,
     total_price DOUBLE,
     discount INT,
+    client_card_is_scanned BOOL DEFAULT FALSE,
+    is_paid BOOL DEFAULT FALSE,
     is_refunded BOOL DEFAULT FALSE,
     FOREIGN KEY (salesman_id) REFERENCES table_employee (employee_id)
     ON DELETE NO ACTION ON UPDATE NO ACTION,
@@ -145,7 +166,9 @@ CREATE TABLE table_orders(
     total_items INT,
     total_price DOUBLE,
     discount INT,
+    is_confirmed BOOL DEFAULT FALSE,
     is_paid BOOL DEFAULT FALSE,
+    is_refunded BOOL DEFAULT FALSE,
     FOREIGN KEY (client_id) REFERENCES table_clients (client_id)
     ON DELETE NO ACTION ON UPDATE NO ACTION
 );
