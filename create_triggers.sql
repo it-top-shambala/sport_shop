@@ -31,7 +31,7 @@ CREATE TRIGGER trigger_calculate_total_price_in_receipt
        DECLARE count INT;
        SELECT total_price INTO old_total_price FROM table_receipts WHERE receipt_id=NEW.receipt_id;
        SELECT sell_price INTO added_item_price FROM table_products WHERE product_id=NEW.product_id;
-       SELECT old_total_price + added_item_price INTO new_total_price;
+       SELECT old_total_price + (added_item_price*NEW.amount) INTO new_total_price;
        SELECT total_items+1 INTO count FROM table_receipts WHERE receipt_id=NEW.receipt_id;
        UPDATE table_receipts
        SET total_price = new_total_price AND total_items=count
@@ -50,7 +50,7 @@ CREATE TRIGGER trigger_calculate_total_price_in_order
        DECLARE count INT;
        SELECT total_price INTO old_total_price FROM table_orders WHERE order_id=NEW.order_id;
        SELECT sell_price INTO added_item_price FROM table_products WHERE product_id=NEW.product_id;
-       SELECT old_total_price + added_item_price INTO new_total_price;
+       SELECT old_total_price + (added_item_price*NEW.amount) INTO new_total_price;
        SELECT total_items+1 INTO count FROM table_orders WHERE order_id=NEW.order_id;
        UPDATE table_orders
        SET total_price = new_total_price AND total_items=count
