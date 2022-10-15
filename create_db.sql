@@ -117,8 +117,8 @@ CREATE TABLE table_receipts(
     date_of_deal DATETIME NOT NULL,
     salesman_id INT NOT NULL,
     client_id INT,
-    total_items INT NOT NULL,
-    total_price DOUBLE NOT NULL,
+    total_items INT,
+    total_price DOUBLE,
     discount INT,
     is_refunded BOOL DEFAULT FALSE,
     FOREIGN KEY (salesman_id) REFERENCES table_employee (employee_id)
@@ -142,8 +142,8 @@ CREATE TABLE table_orders(
     order_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     client_id INT NOT NULL,
     date_of_order DATETIME NOT NULL,
-    total_items INT NOT NULL,
-    total_price DOUBLE NOT NULL,
+    total_items INT,
+    total_price DOUBLE,
     discount INT,
     is_paid BOOL DEFAULT FALSE,
     FOREIGN KEY (client_id) REFERENCES table_clients (client_id)
