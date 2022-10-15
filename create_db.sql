@@ -3,7 +3,6 @@ CREATE SCHEMA sport_shop_db;
 DROP TABLE table_employee_archive;
 DROP TABLE table_procurements;
 DROP TABLE table_last_items;
-DROP TABLE table_sold_out_products_archive;
 DROP TABLE table_receipt_items;
 DROP TABLE table_order_items;
 DROP TABLE table_all_sales;
@@ -119,13 +118,6 @@ CREATE TABLE table_last_items(
     product_id INT NOT NULL,
     new_price DOUBLE,
     FOREIGN KEY (product_id) REFERENCES table_products (product_id)
-    ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
-CREATE TABLE table_sold_out_products_archive(
-    product_archive_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    product_id INT NOT NULL,
-    FOREIGN KEY (product_id) REFERENCES table_products(product_id)
     ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
