@@ -92,22 +92,22 @@ CREATE TRIGGER trigger_set_discount_to_order_if_total_price_exceeds_50000
                        DECLARE existed_discount INT;
                        SELECT discount INTO existed_discount FROM table_clients WHERE client_id=NEW.client_id;
                             IF existed_discount<15 THEN
-                                UPDATE table_receipts
+                                UPDATE table_orders
                                 SET discount = 15
-                                WHERE receipt_id=NEW.order_id;
+                                WHERE order_id=NEW.order_id;
                             ELSE
-                                UPDATE table_receipts
+                                UPDATE table_orders
                                 SET discount = existed_discount
-                                WHERE receipt_id=NEW.order_id;
+                                WHERE order_id=NEW.order_id;
                             END IF;
                     END;
                 ELSE
                     BEGIN
                        DECLARE existed_discount INT;
                        SELECT discount INTO existed_discount FROM table_clients WHERE client_id=NEW.client_id;
-                       UPDATE table_receipts
+                       UPDATE table_orders
                        SET discount = existed_discount
-                       WHERE receipt_id=NEW.order_id;
+                       WHERE order_id=NEW.order_id;
                     END;
                 END IF;
             END;
@@ -116,9 +116,9 @@ CREATE TRIGGER trigger_set_discount_to_order_if_total_price_exceeds_50000
             BEGIN
                 DECLARE total_price_minus_discount DOUBLE;
                 SELECT total_price*(discount/100) INTO total_price_minus_discount;
-                UPDATE table_receipts
+                UPDATE table_orders
                 SET total_price=total_price_minus_discount
-                WHERE receipt_id=NEW.order_id;
+                WHERE order_id=NEW.order_id;
             END;
         END IF;
 END|
