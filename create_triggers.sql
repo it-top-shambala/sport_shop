@@ -138,14 +138,16 @@ END|
 
 
 DELIMITER |
-CREATE TRIGGER trigger_drop_product_to_table_sold_out_products_archive
+CREATE TRIGGER trigger_set_product_is_sold_out
     AFTER UPDATE ON table_products
     FOR EACH ROW
     BEGIN
         DECLARE amount_left INT;
         SELECT amount INTO amount_left FROM table_products WHERE NEW.product_id=product_id;
         IF amount_left = 0 THEN
-        INSERT INTO table_sold_out_products_archive (product_id) VALUE (NEW.product_id);
+        UPDATE table_products
+        SET is_sold_out = TRUE
+        WHERE product_id = NEW.product_id;
         END IF;
 END|
 
