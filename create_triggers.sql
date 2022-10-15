@@ -1,26 +1,4 @@
 DELIMITER |
-CREATE TRIGGER trigger_insert_receipt_into_table_all_sales
-    AFTER UPDATE ON table_receipts
-    FOR EACH ROW
-    BEGIN
-        IF NEW.is_paid=TRUE THEN
-           INSERT INTO table_all_sales (receipt_id) VALUES (NEW.receipt_id);
-        END IF;
-END|
-
-
-DELIMITER |
-CREATE TRIGGER trigger_insert_order_into_table_all_sales
-    AFTER UPDATE ON table_orders
-    FOR EACH ROW
-    BEGIN
-        IF NEW.is_paid=TRUE THEN
-           INSERT INTO table_all_sales (order_id) VALUES (NEW.order_id);
-        END IF;
-END|
-
-
-DELIMITER |
 CREATE TRIGGER trigger_calculate_total_price_in_receipt
     AFTER INSERT ON table_receipt_items
     FOR EACH ROW
@@ -236,6 +214,7 @@ CREATE TRIGGER trigger_set_date_to_receipt_after_payment
             UPDATE table_receipts
             SET date_of_deal=DATE(now())
             WHERE receipt_id=NEW.receipt_id;
+            INSERT INTO table_all_sales (receipt_id) VALUES (NEW.receipt_id);
         END IF;
 END |
 
@@ -249,5 +228,6 @@ CREATE TRIGGER trigger_set_date_to_order_after_payment
             UPDATE table_orders
             SET date_of_order=DATE(now())
             WHERE order_id=NEW.order_id;
+            INSERT INTO table_all_sales (order_id) VALUES (NEW.order_id);
         END IF;
 END |
