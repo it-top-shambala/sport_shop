@@ -2,7 +2,7 @@ CREATE SCHEMA sport_shop_db;
 
 DROP TABLE table_employee_archive;
 DROP TABLE table_procurements;
-DROP TABLE last_items;
+DROP TABLE table_last_items;
 DROP TABLE table_sold_out_products_archive;
 DROP TABLE table_receipt_items;
 DROP TABLE table_order_items;
@@ -114,7 +114,7 @@ CREATE TABLE table_procurements(
     ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
-CREATE TABLE last_items(
+CREATE TABLE table_last_items(
     last_item_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     product_id INT NOT NULL,
     new_price DOUBLE,

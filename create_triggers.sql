@@ -1,96 +1,185 @@
 DELIMITER |
-CREATE TRIGGER trigger_insert_to_deals_backup
-    AFTER INSERT ON table_deals
+CREATE TRIGGER trigger_insert_receipt_into_table_all_sales
+    AFTER UPDATE ON table_receipts
     FOR EACH ROW
     BEGIN
-        INSERT INTO table_deals_backup (product_id, client_id, salesman_id, amount, price, date_of_deal)
-            VALUE (NEW.product_id,NEW.client_id,NEW.salesman_id,NEW.amount,NEW.price,NEW.date_of_deal);
+        IF NEW.is_paid=TRUE THEN
+           INSERT INTO table_all_sales (receipt_id) VALUES (NEW.receipt_id);
+        END IF;
 END|
 
+
 DELIMITER |
-CREATE TRIGGER trigger_drop_product_to_archive
-    AFTER INSERT ON table_deals
+CREATE TRIGGER trigger_insert_order_into_table_all_sales
+    AFTER UPDATE ON table_orders
+    FOR EACH ROW
+    BEGIN
+        IF NEW.is_paid=TRUE THEN
+           INSERT INTO table_all_sales (order_id) VALUES (NEW.order_id);
+        END IF;
+END|
+
+
+DELIMITER |
+CREATE TRIGGER trigger_calculate_total_price_in_receipt
+    AFTER INSERT ON table_receipt_items
+    FOR EACH ROW
+    BEGIN
+       DECLARE old_total_price INT;
+       DECLARE added_item_price INT;
+       DECLARE new_total_price INT;
+       SELECT total_price INTO old_total_price FROM table_receipts WHERE receipt_id=NEW.receipt_id;
+       SELECT sell_price INTO added_item_price FROM table_products WHERE product_id=NEW.product_id;
+       SELECT old_total_price + added_item_price INTO new_total_price;
+       UPDATE table_receipts
+       SET total_price = new_total_price
+       WHERE receipt_id=NEW.receipt_id;
+END|
+
+
+DELIMITER |
+CREATE TRIGGER trigger_calculate_total_price_in_order
+    AFTER INSERT ON table_order_items
+    FOR EACH ROW
+    BEGIN
+       DECLARE old_total_price INT;
+       DECLARE added_item_price INT;
+       DECLARE new_total_price INT;
+       SELECT total_price INTO old_total_price FROM table_receipts WHERE receipt_id=NEW.order_id;
+       SELECT sell_price INTO added_item_price FROM table_products WHERE product_id=NEW.product_id;
+       SELECT old_total_price + added_item_price INTO new_total_price;
+       UPDATE table_receipts
+       SET total_price = new_total_price
+       WHERE receipt_id=NEW.order_id;
+END|
+
+
+DELIMITER |
+CREATE TRIGGER trigger_set_discount_to_receipt_if_total_price_exceeds_50000
+    AFTER UPDATE ON table_receipts
+    FOR EACH ROW
+    BEGIN
+        IF NEW.client_card_is_scanned THEN
+            BEGIN
+                IF NEW.total_price>50000.0 THEN
+                    BEGIN
+                       DECLARE existed_discount INT;
+                       SELECT discount INTO existed_discount FROM table_clients WHERE client_id=NEW.client_id;
+                            IF existed_discount<15 THEN
+                                UPDATE table_receipts
+                                SET discount = 15
+                                WHERE receipt_id=NEW.receipt_id;
+                            ELSE
+                                UPDATE table_receipts
+                                SET discount = existed_discount
+                                WHERE receipt_id=NEW.receipt_id;
+                            END IF;
+                    END;
+                ELSE
+                    BEGIN
+                       DECLARE existed_discount INT;
+                       SELECT discount INTO existed_discount FROM table_clients WHERE client_id=NEW.client_id;
+                       UPDATE table_receipts
+                       SET discount = existed_discount
+                       WHERE receipt_id=NEW.receipt_id;
+                    END;
+                END IF;
+            END;
+        END IF;
+        IF discount>0 THEN
+            BEGIN
+                DECLARE total_price_minus_discount DOUBLE;
+                SELECT total_price*(discount/100) INTO total_price_minus_discount;
+                UPDATE table_receipts
+                SET total_price=total_price_minus_discount
+                WHERE receipt_id=NEW.receipt_id;
+            END;
+        END IF;
+END|
+
+
+DELIMITER |
+CREATE TRIGGER trigger_set_discount_to_order_if_total_price_exceeds_50000
+    AFTER UPDATE ON table_orders
+    FOR EACH ROW
+    BEGIN
+        IF NEW.is_confirmed THEN
+            BEGIN
+                IF NEW.total_price>50000.0 THEN
+                    BEGIN
+                       DECLARE existed_discount INT;
+                       SELECT discount INTO existed_discount FROM table_clients WHERE client_id=NEW.client_id;
+                            IF existed_discount<15 THEN
+                                UPDATE table_receipts
+                                SET discount = 15
+                                WHERE receipt_id=NEW.order_id;
+                            ELSE
+                                UPDATE table_receipts
+                                SET discount = existed_discount
+                                WHERE receipt_id=NEW.order_id;
+                            END IF;
+                    END;
+                ELSE
+                    BEGIN
+                       DECLARE existed_discount INT;
+                       SELECT discount INTO existed_discount FROM table_clients WHERE client_id=NEW.client_id;
+                       UPDATE table_receipts
+                       SET discount = existed_discount
+                       WHERE receipt_id=NEW.order_id;
+                    END;
+                END IF;
+            END;
+        END IF;
+        IF discount>0 THEN
+            BEGIN
+                DECLARE total_price_minus_discount DOUBLE;
+                SELECT total_price*(discount/100) INTO total_price_minus_discount;
+                UPDATE table_receipts
+                SET total_price=total_price_minus_discount
+                WHERE receipt_id=NEW.order_id;
+            END;
+        END IF;
+END|
+
+
+DELIMITER |
+CREATE TRIGGER trigger_drop_product_to_table_last_items
+    AFTER UPDATE ON table_products
     FOR EACH ROW
     BEGIN
         DECLARE amount_left INT;
         SELECT amount INTO amount_left FROM table_products WHERE NEW.product_id=product_id;
-        IF amount_left=0 THEN
-        INSERT INTO table_products_archive (product_id) VALUE (NEW.product_id);
+        IF amount_left = 1 THEN
+        INSERT INTO table_last_items (product_id) VALUE (NEW.product_id);
         END IF;
 END|
 
+
 DELIMITER |
-CREATE TRIGGER trigger_drop_product_to_last_item
-    AFTER INSERT ON table_deals
+CREATE TRIGGER trigger_drop_product_to_table_sold_out_products_archive
+    AFTER UPDATE ON table_products
     FOR EACH ROW
     BEGIN
         DECLARE amount_left INT;
         SELECT amount INTO amount_left FROM table_products WHERE NEW.product_id=product_id;
-        IF amount_left=1 THEN
-        INSERT INTO table_products_last_item (product_id) VALUE (NEW.product_id);
+        IF amount_left = 0 THEN
+        INSERT INTO table_sold_out_products_archive (product_id) VALUE (NEW.product_id);
         END IF;
 END|
+
 
 DELIMITER |
 CREATE TRIGGER trigger_insert_client
     BEFORE INSERT ON table_clients
     FOR EACH ROW
     BEGIN
-        SET @exists := EXISTS(SELECT client_id FROM table_clients
-                                               WHERE NEW.first_name=first_name AND
-                                                     NEW.middle_name=middle_name AND
-                                                     NEW.last_name=last_name AND
-                                                     NEW.e_mail=e_mail);
+        SET @exists := EXISTS(SELECT client_id FROM table_clients WHERE NEW.e_mail=e_mail OR
+                                                                        NEW.phone=phone);
         IF !@exists THEN
-        INSERT INTO table_clients (first_name, middle_name, last_name, gender, e_mail, phone, discount, is_subscribed)
-            VALUE (NEW.first_name, NEW.middle_name, NEW.last_name, NEW.gender, NEW.e_mail, NEW.phone, NEW.discount, NEW.is_subscribed);
+        INSERT INTO table_clients (person_id, e_mail, phone, discount, is_subscribed)
+            VALUE (NEW.person_id, NEW.e_mail, NEW.phone, NEW.discount, NEW.is_subscribed);
         END IF;
 END|
-
-DELIMITER |
-CREATE TRIGGER trigger_set_discount_if_50000
-    BEFORE INSERT ON table_deals
-    FOR EACH ROW
-    BEGIN
-        SET @exists := EXISTS(SELECT deal_id FROM table_deals
-                                               WHERE NEW.date_of_deal=date(now())AND
-                                                     NEW.client_id=client_id);
-        IF @exists THEN
-         BEGIN
-            DECLARE done INT DEFAULT FALSE;
-            DECLARE temp FLOAT DEFAULT 0.0;
-            DECLARE sum FLOAT DEFAULT 0.0;
-            DECLARE price_cursor CURSOR FOR SELECT price FROM table_deals
-                                               WHERE NEW.date_of_deal=date(now())AND
-                                                     NEW.client_id=client_id;
-            DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
-            OPEN price_cursor;
-            read_loop: LOOP
-            FETCH price_cursor INTO temp;
-            IF done THEN
-            LEAVE read_loop;
-            END IF;
-            SELECT sum+temp INTO sum;
-            END LOOP;
-            CLOSE price_cursor;
-
-            IF sum>50000.0 THEN
-                BEGIN
-                    DECLARE existed_discount INT DEFAULT 0;
-                    SELECT discount INTO existed_discount FROM table_clients WHERE client_id = NEW.client_id;
-                    IF existed_discount<15 THEN
-                        UPDATE table_clients
-                        SET discount=15
-                        WHERE client_id=NEW.client_id;
-                    END IF;
-                END;
-            END IF;
-         END;
-        END IF;
-        INSERT INTO table_deals (product_id, client_id, salesman_id, amount, price, date_of_deal)
-               VALUES (NEW.product_id, NEW.client_id, NEW.salesman_id, NEW.amount, NEW.price, NEW.date_of_deal);
-END|
--- условие для отмены временной скидки после завершения покупки???
 
 
 DELIMITER |
@@ -98,21 +187,22 @@ CREATE TRIGGER trigger_drop_employee_to_archive
     AFTER UPDATE ON table_employee
     FOR EACH ROW
     BEGIN
-        IF NEW.is_working=FALSE THEN
-        INSERT INTO table_employee_archive (employee_id) VALUE (NEW.employee_id);
+        IF NEW.is_working = FALSE  THEN
+        INSERT INTO table_employee_archive (employee_id, date_of_firing) VALUE (NEW.employee_id, DATE(now()));
         END IF;
 END|
 
+
 DELIMITER |
-CREATE TRIGGER trigger_if_product_exists
+CREATE TRIGGER trigger_insert_product_if_exists
     BEFORE INSERT ON table_products
     FOR EACH ROW
     BEGIN
         SET @exists := EXISTS(SELECT product_id FROM table_products
                                                WHERE NEW.product_name=product_name AND
-                                                     NEW.product_type=product_type AND
-                                                     NEW.manufacturer=manufacturer AND
-                                                     NEW.cost_price=cost_price);
+                                                     NEW.product_name=product_name AND
+                                                     NEW.product_type_id=product_type_id AND
+                                                     NEW.company_id=company_id);
         IF @exists THEN
          BEGIN
              DECLARE existed_product_id INT;
@@ -120,16 +210,15 @@ CREATE TRIGGER trigger_if_product_exists
              DECLARE new_amount INT;
              SELECT product_id INTO existed_product_id FROM table_products WHERE
                                                      NEW.product_name=product_name AND
-                                                     NEW.product_type=product_type AND
-                                                     NEW.manufacturer=manufacturer AND
-                                                     NEW.cost_price=cost_price;
+                                                     NEW.product_type_id=product_type_id AND
+                                                     NEW.company_id=company_id;
              SELECT amount INTO old_amount FROM table_products WHERE product_id=existed_product_id;
              SELECT old_amount+NEW.amount INTO new_amount;
              UPDATE table_products
              SET amount = new_amount
-             WHERE product_id=existed_product_id;
+             WHERE product_id = existed_product_id;
          END;
-        ELSE INSERT INTO table_products (product_name, product_type, manufacturer, amount, cost_price, sell_price)
-             VALUES (NEW.product_name, NEW.product_type, NEW.manufacturer, NEW.amount, NEW.cost_price, NEW.sell_price);
+        ELSE INSERT INTO table_products (product_name, product_type_id, company_id, amount, sell_price)
+             VALUES (NEW.product_name, NEW.product_type_id, NEW.company_id, NEW.amount, NEW.sell_price);
         END IF;
 END|
