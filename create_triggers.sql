@@ -226,3 +226,28 @@ CREATE TRIGGER trigger_insert_product_if_exists
              VALUES (NEW.product_name, NEW.product_type_id, NEW.company_id, NEW.amount, NEW.sell_price);
         END IF;
 END|
+
+DELIMITER |
+CREATE TRIGGER trigger_set_date_to_receipt_after_payment
+    AFTER UPDATE ON table_receipts
+    FOR EACH ROW
+    BEGIN
+        IF NEW.is_paid = TRUE  THEN
+            UPDATE table_receipts
+            SET date_of_deal=DATE(now())
+            WHERE receipt_id=NEW.receipt_id;
+        END IF;
+END |
+
+
+DELIMITER |
+CREATE TRIGGER trigger_set_date_to_order_after_payment
+    AFTER UPDATE ON table_orders
+    FOR EACH ROW
+    BEGIN
+        IF NEW.is_paid = TRUE  THEN
+            UPDATE table_orders
+            SET date_of_order=DATE(now())
+            WHERE order_id=NEW.order_id;
+        END IF;
+END |

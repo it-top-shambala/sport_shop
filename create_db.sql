@@ -133,7 +133,7 @@ CREATE TABLE table_sold_out_products_archive(
 -- tables for sales
 CREATE TABLE table_receipts(
     receipt_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    date_of_deal DATETIME NOT NULL,
+    date_of_deal DATETIME,
     salesman_id INT NOT NULL,
     client_id INT,
     total_items INT,
@@ -162,7 +162,7 @@ CREATE TABLE table_receipt_items(
 CREATE TABLE table_orders(
     order_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     client_id INT NOT NULL,
-    date_of_order DATETIME NOT NULL,
+    date_of_order DATETIME,
     total_items INT,
     total_price DOUBLE,
     discount INT,
