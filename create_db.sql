@@ -2,7 +2,8 @@ CREATE SCHEMA sport_shop_db;
 
 DROP TABLE table_employee_archive;
 DROP TABLE table_procurements;
-DROP TABLE table_last_items;
+DROP TABLE table_nomenclatures;
+DROP TABLE table_nomenclature_last_items;
 DROP TABLE table_receipt_items;
 DROP TABLE table_order_items;
 DROP TABLE table_all_sales;
@@ -89,34 +90,42 @@ CREATE TABLE table_products(
     product_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     product_name TEXT NOT NULL,
     product_type_id INT NOT NULL,
-    company_id INT NOT NULL,
-    amount INT NOT NULL,
-    defective_amount INT DEFAULT 0,
-    sell_price DOUBLE NOT NULL,
-    is_sold_out BOOL DEFAULT FALSE,
+    manufacturer_id INT NOT NULL,
     FOREIGN KEY (product_type_id) REFERENCES table_product_types (product_type_id)
     ON DELETE NO ACTION ON UPDATE NO ACTION,
-    FOREIGN KEY (company_id) REFERENCES table_companies (company_id)
+    FOREIGN KEY (manufacturer_id) REFERENCES table_companies (company_id)
+    ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+CREATE TABLE table_nomenclatures(
+    nomenclature_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    amount INT NOT NULL,
+    defective_amount INT DEFAULT 0,
+    sell_price DOUBLE,
+    is_available BOOL DEFAULT FALSE,
+    is_sold_out BOOL DEFAULT FALSE,
+    FOREIGN KEY (product_id) REFERENCES table_products (product_id)
+    ON DELETE NO ACTION ON UPDATE NO ACTION
+);
+
+CREATE TABLE table_nomenclature_last_items(
+    last_item_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    nomenclature_id INT NOT NULL,
+    new_sell_price DOUBLE,
+    FOREIGN KEY (nomenclature_id) REFERENCES table_nomenclatures (nomenclature_id)
     ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 CREATE TABLE table_procurements(
     procurement_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     date_of_procurement DATE NOT NULL,
-    company_id INT NOT NULL,
+    supplier_id INT NOT NULL,
     product_id INT NOT NULL,
     amount INT NOT NULL,
     cost_price DOUBLE NOT NULL,
-    FOREIGN KEY (company_id) REFERENCES table_companies (company_id)
+    FOREIGN KEY (supplier_id) REFERENCES table_companies (company_id)
     ON DELETE NO ACTION ON UPDATE NO ACTION,
-    FOREIGN KEY (product_id) REFERENCES table_products (product_id)
-    ON DELETE NO ACTION ON UPDATE NO ACTION
-);
-
-CREATE TABLE table_last_items(
-    last_item_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    product_id INT NOT NULL,
-    new_price DOUBLE,
     FOREIGN KEY (product_id) REFERENCES table_products (product_id)
     ON DELETE NO ACTION ON UPDATE NO ACTION
 );
@@ -143,11 +152,11 @@ CREATE TABLE table_receipts(
 CREATE TABLE table_receipt_items(
     receipt_item_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     receipt_id INT NOT NULL,
-    product_id INT NOT NULL,
+    nomenclature_id INT NOT NULL,
     amount INT NOT NULL,
     FOREIGN KEY (receipt_id) REFERENCES table_receipts (receipt_id)
     ON DELETE NO ACTION ON UPDATE NO ACTION,
-    FOREIGN KEY (product_id) REFERENCES table_products (product_id)
+    FOREIGN KEY (nomenclature_id) REFERENCES table_nomenclatures (nomenclature_id)
     ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
@@ -168,11 +177,11 @@ CREATE TABLE table_orders(
 CREATE TABLE table_order_items(
     order_item_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     order_id INT NOT NULL,
-    product_id INT NOT NULL,
+    nomenclature_id INT NOT NULL,
     amount INT NOT NULL,
     FOREIGN KEY (order_id) REFERENCES table_orders (order_id)
     ON DELETE NO ACTION ON UPDATE NO ACTION,
-    FOREIGN KEY (product_id) REFERENCES table_products (product_id)
+    FOREIGN KEY (nomenclature_id) REFERENCES table_nomenclatures (nomenclature_id)
     ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
