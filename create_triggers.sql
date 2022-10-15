@@ -52,7 +52,10 @@ CREATE TRIGGER trigger_drop_nomenclature_to_table_last_items
     BEGIN
         SET @amount_left := function_get_nomenclature_amount(NEW.nomenclature_id);
         IF @amount_left = 1 THEN
-        INSERT INTO table_nomenclature_last_items (nomenclature_id) VALUE (NEW.nomenclature_id);
+        SET @price := function_get_nomenclature_price(NEW.nomenclature_id);
+        SET @new_price := @price*0.9;
+        INSERT INTO table_nomenclature_last_items (nomenclature_id, new_sell_price)
+            VALUES (NEW.nomenclature_id, @new_price);
         END IF;
 END|
 
