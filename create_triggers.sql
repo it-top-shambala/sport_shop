@@ -195,7 +195,7 @@ END|
 
 
 DELIMITER |
-CREATE TRIGGER trigger_set_date_to_receipt_after_payment
+CREATE TRIGGER trigger_set_date_to_receipt_after_payment_and_close_deal
     AFTER UPDATE ON table_receipts
     FOR EACH ROW
     BEGIN
@@ -203,13 +203,14 @@ CREATE TRIGGER trigger_set_date_to_receipt_after_payment
             UPDATE table_receipts
             SET date_of_deal=DATE(now())
             WHERE receipt_id=NEW.receipt_id;
+            CALL procedure_refresh_nomenclature_amount_after_receipt_payment(NEW.receipt_id);
             INSERT INTO table_all_sales (receipt_id) VALUES (NEW.receipt_id);
         END IF;
 END |
 
 
 DELIMITER |
-CREATE TRIGGER trigger_set_date_to_order_after_payment
+CREATE TRIGGER trigger_set_date_to_order_after_payment_and_close_deal
     AFTER UPDATE ON table_orders
     FOR EACH ROW
     BEGIN
@@ -217,6 +218,7 @@ CREATE TRIGGER trigger_set_date_to_order_after_payment
             UPDATE table_orders
             SET date_of_order=DATE(now())
             WHERE order_id=NEW.order_id;
+            CALL procedure_refresh_nomenclature_amount_after_order_payment(NEW.order_id);
             INSERT INTO table_all_sales (order_id) VALUES (NEW.order_id);
         END IF;
 END |
