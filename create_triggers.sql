@@ -68,7 +68,7 @@ CREATE TRIGGER trigger_set_nomenclature_is_sold_out
         SET @amount_left := function_get_nomenclature_amount(NEW.nomenclature_id);
         IF @amount_left = 0 THEN
         UPDATE table_nomenclatures
-        SET is_sold_out = TRUE
+        SET is_sold_out = TRUE AND is_available = FALSE
         WHERE nomenclature_id = NEW.nomenclature_id;
         END IF;
 END|

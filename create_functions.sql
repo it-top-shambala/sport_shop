@@ -55,3 +55,19 @@ BEGIN
     SELECT discount INTO client_discount FROM table_clients WHERE table_clients.client_id=client_id;
     RETURN client_discount;
 END|
+
+DELIMITER |
+CREATE FUNCTION function_get_receipt_item_amount (item_id INT) RETURNS INT DETERMINISTIC
+BEGIN
+    DECLARE sold_amount INT DEFAULT 0;
+    SELECT amount INTO sold_amount FROM table_receipt_items WHERE table_receipt_items.receipt_item_id=item_id;
+    RETURN sold_amount;
+END|
+
+DELIMITER |
+CREATE FUNCTION function_get_order_item_amount (item_id INT) RETURNS INT DETERMINISTIC
+BEGIN
+    DECLARE sold_amount INT DEFAULT 0;
+    SELECT amount INTO sold_amount FROM table_order_items WHERE table_order_items.order_item_id=item_id;
+    RETURN sold_amount;
+END|
