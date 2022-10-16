@@ -2,10 +2,10 @@ CREATE SCHEMA sport_shop_db;
 
 DROP TABLE table_employee_archive;
 DROP TABLE table_procurements;
-DROP TABLE table_nomenclatures;
 DROP TABLE table_nomenclature_last_items;
 DROP TABLE table_receipt_items;
 DROP TABLE table_order_items;
+DROP TABLE table_nomenclatures;
 DROP TABLE table_all_sales;
 DROP TABLE table_orders;
 DROP TABLE table_receipts;
@@ -141,6 +141,7 @@ CREATE TABLE table_receipts(
     total_price DOUBLE,
     discount INT,
     client_card_is_scanned BOOL DEFAULT FALSE,
+    discount_is_considered BOOL DEFAULT FALSE,
     is_paid BOOL DEFAULT FALSE,
     is_refunded BOOL DEFAULT FALSE,
     FOREIGN KEY (salesman_id) REFERENCES table_employee (employee_id)
@@ -168,6 +169,7 @@ CREATE TABLE table_orders(
     total_price DOUBLE,
     discount INT,
     is_confirmed BOOL DEFAULT FALSE,
+    discount_is_considered BOOL DEFAULT FALSE,
     is_paid BOOL DEFAULT FALSE,
     is_refunded BOOL DEFAULT FALSE,
     FOREIGN KEY (client_id) REFERENCES table_clients (client_id)
