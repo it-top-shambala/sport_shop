@@ -19,7 +19,7 @@ BEGIN
     INTO nomenclature_amount
     FROM table_nomenclatures
     WHERE table_nomenclatures.nomenclature_id = nomenclature_id;
-    RETURN amount;
+    RETURN nomenclature_amount;
 END|
 
 DELIMITER |
