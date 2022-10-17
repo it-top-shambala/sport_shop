@@ -14,9 +14,9 @@ DELIMITER |
 CREATE FUNCTION function_get_nomenclature_amount(nomenclature_id INT) RETURNS INT
     DETERMINISTIC
 BEGIN
-    DECLARE amount INT DEFAULT 0;
+    DECLARE nomenclature_amount INT DEFAULT 0;
     SELECT amount
-    INTO amount
+    INTO nomenclature_amount
     FROM table_nomenclatures
     WHERE table_nomenclatures.nomenclature_id = nomenclature_id;
     RETURN amount;
