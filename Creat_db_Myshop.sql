@@ -5,7 +5,8 @@ CREATE SCHEMA  myshop_db;
 CREATE TABLE  producing_countries
 (
     producing_country_id    INT  NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    producing_country   TEXT NOT  NULL
+    producing_country   TEXT NOT  NULL,
+    producing_firm  TEXT NOT  NULL
 );
 
 CREATE TABLE  products (
@@ -15,7 +16,7 @@ CREATE TABLE  products (
 );
 
 CREATE TABLE  current_products (
-    product_id INT NOT NULL,
+    product_id INT NOT NULL PRIMARY KEY,
     product_count INT NULL,
     product_cost_price_today DOUBLE NULL,
     product_sell_price_today DOUBLE NULL
@@ -43,18 +44,14 @@ CREATE TABLE  posts
     employee_id INT NOT NULL
 );
 
-CREATE TABLE  subscribing
-(
-    subscribing_id    INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    subscribing   BOOL  NOT NULL
-);
 
 CREATE TABLE  buyers (
     buyer_id    INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
     buyer_fio   TEXT NOT NULL,
+    sex_id int NOT NULL,
     buyer_phone TEXT  NULL,
     buyer_mail  TEXT  NULL,
-    subscribing_id  INT NOT NULL
+    subscribing BOOL NOT NULL
 );
 
 CREATE TABLE  discounts
@@ -64,20 +61,26 @@ CREATE TABLE  discounts
 );
 
 CREATE TABLE  sold_products (
+    leaving_time_id INT  NOT NULL PRIMARY KEY  AUTO_INCREMENT,
+    leaving_time TIMESTAMP NOT NULL,
     product_id INT NOT NULL,
     employee_id INT NOT NULL,
     buyer_id INT NOT NULL,
     discount_id INT NOT NULL,
     selling_price DOUBLE NULL,
     count_sold INT NULL,
-    selling_date DATE NOT NULL
+    internet BOOL NOT NULL
 );
 
-INSERT INTO producing_countries (producing_country)
-VALUES ('russia'),
-       ('china'),
-       ('vietnam'),
-       ('india');
+CREATE TABLE  last_item(
+product_id INT NOT NULL PRIMARY KEY
+);
+
+INSERT INTO producing_countries (producing_country, producing_firm)
+VALUES ('russia', 'sport'),
+       ('china', 'adidas'),
+       ('vietnam', 'nike'),
+       ('india','puma');
 
 
 INSERT INTO products (product_name, producing_country_id)
@@ -103,32 +106,32 @@ VALUES ('Старинин Андрей', 1, '01.01.2012', '00.00.00'),
        ('Рубо Галина', 2, '22.10.2015', '00.00.00');
 
 INSERT INTO posts(post, salary, employee_id)
-VALUES ('boss', 200000, 1),
-       ('seller', 80000, 2),
-       ('seller', 60000, 4),
-       ('storekeeper', 60000, 3),
-       ('accountant', 20000, 4);
+VALUES ('boss', 200000,1),
+       ('seller1', 80000,2),
+       ('seller2', 60000,4),
+       ('storekeeper', 60000,3),
+       ('accountant', 20000,4);
 
-INSERT INTO subscribing(subscribing)
-VALUES (TRUE), (FALSE);
 
-INSERT INTO buyers(buyer_fio, buyer_phone, buyer_mail, subscribing_id)
-VALUES ('Дюмин Назар', 88001001010, 'dz@mail.ru', 1),
-       ('Сырцов Евгений', 88002002020, 'se@mail.ru', 1),
-       ('Харитоненко Михаил', 88003003030, 'hm@mail.ru', 1),
-       ('Анкушин Алексей', 88004004040, 'aa@mail.ru', 2),
-       ('Каракич Роман', 88005005050, 'kr@mail.ru', 2);
+INSERT INTO buyers(buyer_fio, sex_id, buyer_phone, buyer_mail, subscribing)
+VALUES ('Дюмин Назар',1, 88001001010, 'dz@mail.ru', TRUE),
+       ('Сырцов Евгений',1, 88002002020, 'se@mail.ru', TRUE),
+       ('Харитоненко Михаил',1, 88003003030, 'hm@mail.ru', TRUE),
+       ('Анкушин Алексей',1, 88004004040, 'aa@mail.ru', FALSE),
+       ('Каракич Роман',1, 88005005050, 'kr@mail.ru', FALSE);
 
 INSERT INTO discounts(discount)
 VALUE (0.05),(0.1),(0.15),(0.2);
 
-INSERT INTO sold_products (product_id, employee_id, buyer_id, discount_id, selling_price, count_sold, selling_date)
-VALUE  (1,2,2,1,2300,1,'10.10.2022'),
-       (2,2,1,1,2250,1,'10.10.2022'),
-       (3,4,1,2,370,2,'05.10.2022'),
-       (3,2,3,2,350,2,'03.10.2022'),
-       (4,4,4,3,1600,1,'01.10.2022'),
-       (5,2,5,4,4000,1,'08.10.2022');
+INSERT INTO sold_products (leaving_time,product_id, employee_id, buyer_id, discount_id, selling_price, count_sold, internet)
+VALUE  ('22.10.10.10.12.30',1,2,2,1,2300,1,FALSE),
+       ('22.10.10.13.10.15',2,2,1,1,2250,1, FALSE),
+       ('20.10.05.12.05.23',3,4,1,2,370,2,TRUE),
+       ('22.10.03.16.03.20',3,2,3,2,350,2,TRUE),
+       ('22.10.01.17.05.22',4,4,4,3,1600,1,FALSE),
+       ('22.10.05.12.05.23',2,4,1,2,2250,1,TRUE),
+       ('22.10.03.16.03.20',1,2,3,2,2300,1,TRUE),
+       ('22.10.04.11.01.00',5,2,5,4,4000,1,TRUE);
 
 
 
