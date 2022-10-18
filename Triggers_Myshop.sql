@@ -3,9 +3,9 @@ DELIMITER  |
 CREATE TRIGGER add_product BEFORE  INSERT ON  current_products
 FOR EACH ROW
     BEGIN
-        IF EXISTS(SELECT product_id FROM current_products WHERE product_id = NEW.product_id)
+        IF EXISTS(SELECT current_product FROM current_products WHERE current_product = NEW.current_product)
             THEN UPDATE current_products SET product_count = product_count + NEW.product_count
-            WHERE product_id = NEW.product_id;
+            WHERE current_product = NEW.current_product;
             END IF;
         END|
 -- обновление количества товара после продажи
@@ -14,7 +14,7 @@ CREATE TRIGGER list_sells AFTER INSERT ON sold_products
 FOR EACH ROW
     BEGIN
         UPDATE current_products SET product_count = product_count-NEW.count_sold
-                                WHERE current_products.product_id = NEW.product_id;
+                                WHERE current_products.current_product = NEW.sold_product;
         END|
 
 -- запрет на добавление существующего покупателя
@@ -26,8 +26,8 @@ CREATE TRIGGER aborting_buyer BEFORE  INSERT ON  buyers
     SELECT TRUE INTO @found from buyers WHERE  buyer_fio = NEW.buyer_fio AND buyer_mail = NEW.buyer_mail;
     IF @found THEN
         SIGNAL  SQLSTATE '45000' SET MESSAGE_TEXT  = 'duplicate insert';
-        INSERT IGNORE INTO buyers(BUYER_FIO, SEX_ID, BUYER_PHONE, BUYER_MAIL, SUBSCRIBING)
-        VALUES (NEW.buyer_fio, NEW.sex_id, NEW.buyer_phone, NEW.buyer_mail, NEW.subscribing);
+        INSERT IGNORE INTO buyers(BUYER_FIO, sex_buyer, BUYER_PHONE, BUYER_MAIL, SUBSCRIBING)
+        VALUES (NEW.buyer_fio, NEW.sex_buyer, NEW.buyer_phone, NEW.buyer_mail, NEW.subscribing);
     end IF;
         END|
 
@@ -51,7 +51,7 @@ END |
 
 -- запрет на ввод товара фирмы 'Спорт, солнце и штанга (SSB)'
 DELIMITER |
-CREATE TRIGGER forbid_add_product_SSB BEFORE INSERT ON producing_countries
+CREATE TRIGGER forbid_add_product_SSB BEFORE INSERT ON producing
     FOR EACH ROW
     BEGIN
    IF NEW.producing_firm = 'SSB' THEN
@@ -65,8 +65,8 @@ CREATE TRIGGER set_discont_for_5000 BEFORE INSERT ON sold_products
     FOR EACH ROW
     BEGIN
         DECLARE selling_sum DOUBLE DEFAULT 0;
-        SELECT NEW.buyer_id, SUM(selling_price) AS selling_sum FROM buyers GROUP BY NEW.buyer_id;
-        IF selling_sum > 5000 THEN SET NEW.discount_id = 3 ;
+        SELECT NEW.happy_buyer, SUM(selling_price) AS selling_sum FROM buyers GROUP BY NEW.happy_buyer;
+        IF selling_sum > 5000 THEN SET NEW.buyer_discount = 3 ;
     END IF;
 END |
 
@@ -75,9 +75,9 @@ DELIMITER |
 CREATE TRIGGER set_last_item AFTER UPDATE ON current_products
     FOR EACH ROW
     BEGIN
-        IF NEW.product_count = 1 THEN INSERT INTO last_item(product_id) VALUE (NEW.product_id) ;
+        IF NEW.product_count = 1 THEN INSERT INTO last_item(last_item_product) VALUE (NEW.current_product) ;
             END IF;
-        IF NEW.product_count = 0 THEN DELETE  FROM last_item WHERE last_item.product_id = NEW.product_id;
+        IF NEW.product_count = 0 THEN DELETE  FROM last_item WHERE last_item.last_item_product = NEW.current_product;
             END IF;
 END |
 
